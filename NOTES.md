@@ -17,3 +17,27 @@ Instead of user-defined price ranges, the liquidity book arranges liquidity into
 Each bin essentially has its own price range in which it operates. Bins also follow a constant sum model instead of the traditional constant product (more on this in following sections). This means that assets within a bin maintain a linear relationship to each other 
 
 The cohesion of the market comes from aggregating the liquidity across all these discrete bins. While each bin can operate independently with its unique price range and linear relationship between assets, when a trade occurs, the protocol can move through these bins to execute trades, effectively pooling the liquidity from various bins as needed. For a trade that requires more liquidity than available in a single bin, the liquidity book automatically engages adjacent bins in the trade.
+
+**Reserve Pricing**
+
+Price in a trading pair is calculated as the ratio of the change in the quantity of the quote asset (Y) to the change in the quantity of the base asset (X), where pairs are denoted as "Base Asset/Quote Asset"
+
+P = ∆y/∆x
+
+For example, in the pair BTC/ETH:
+
+- base: BTC
+- quote: ETH
+
+The amount of ETH needed to buy one BTC  = The change in quantity of ETH in reserves / the change of quantity of BTC in reserves
+
+**Bin Liquidity**
+
+Liquidity (L) is the total value of reserves held within a single bin. A bin's liquidity is denominted in the quote asset and represents the combined value of both assets in the bin.
+
+Each bin operates as its own constant sum market, meaning that the total value of liquidity within the bin remains constant despite changes in the reserve composition. Price Parameter (𝑃~𝑖~) is a fixed value that represents the exchange rate of the base asset in terms of the quote asset within a particular bin.
+
+𝑃~𝑖~ · 𝑥 + 𝑦 = 𝐿
+
+ The price parameter defines a linear relationship on a graph where the x-axis represents the reserve of the base asset (X), and the y-axis represents the reserve of the quote asset (Y) and the slope is the price parameter.
+
