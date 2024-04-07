@@ -2,10 +2,12 @@
 
 pragma solidity ^0.8.19;
 
-contract LBPair {
+import {ILBPair} from "./interfaces/ILBPair.sol"; 
+
+contract LBPair is ILBPair {
 
     modifier onlyFactory(){
-        require(msg.sender == _factory, "Only factory");
+        if(msg.sender != _factory) revert LBPair__OnlyFactory();
         _;
     }
     
@@ -34,9 +36,12 @@ contract LBPair {
         _parameters = bytes32(uint256(1));  
     }
 
-    // sets market settings
+    // sets market fee settings settings
     // determines the cost structure for trading, fees, and providing liquidity within the pool
     // these can be dynamically updated post-market creation to adapt to market conditions
+
+    // reference volatility updates to the current volatility decayed by the reductionFactor R when t is greater than the filterPeriod (tf),
+    // or it completely resets to 0 when t is greater than the decayPeriod (td).
     function initialize(
         uint16 baseFactor, // the base factor for the static fee
         uint16 filterPeriod, // the filter period for the static fee
@@ -48,7 +53,7 @@ contract LBPair {
         uint16 activeId // the active id of the LB pair
     ) external /*override*/ onlyFactory {
         bytes32 parameters = _parameters;
-        require(parameters == 0, "Already initialized");
+        if (parameters != 0) revert LBPair__AlreadyInitialized();
 
             // set static fee parameters
             // parameters.setActiveId(activeId).updateIdReference(),
@@ -60,18 +65,5 @@ contract LBPair {
             // protocolShare,
             // maxVolatilityAccumulator
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
