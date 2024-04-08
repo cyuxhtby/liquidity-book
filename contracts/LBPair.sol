@@ -16,7 +16,7 @@ contract LBPair is ILBPair {
 
     address private _factory;
 
-    // encoded market settings that got passed into initialize()
+    // holds encoded market settings that get set on initialization
     bytes32 private _parameters;
 
     // encoded aggregated total of both assets across all bins
