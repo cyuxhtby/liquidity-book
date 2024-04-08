@@ -3,8 +3,9 @@
 pragma solidity ^0.8.19;
 
 import {ILBPair} from "./interfaces/ILBPair.sol"; 
-
+import {PairParameterHelper} from "./libraries/PairParameterHelper.sol";
 contract LBPair is ILBPair {
+    using PairParameterHelper for bytes32; // manipulates parameter data encoded within a single bytes32 via bitwise operations
 
     modifier onlyFactory(){
         if(msg.sender != _factory) revert LBPair__OnlyFactory();
@@ -18,7 +19,7 @@ contract LBPair is ILBPair {
     // encoded market settings that got passed into initialize()
     bytes32 private _parameters;
 
-    // encoded aggregated total of both assets accross all bins
+    // encoded aggregated total of both assets across all bins
     bytes32 private _reserves;
 
     bytes32 private _protocolFees;
@@ -36,34 +37,87 @@ contract LBPair is ILBPair {
         _parameters = bytes32(uint256(1));  
     }
 
-    // sets market fee settings settings
-    // determines the cost structure for trading, fees, and providing liquidity within the pool
-    // these can be dynamically updated post-market creation to adapt to market conditions
-
-    // reference volatility updates to the current volatility decayed by the reductionFactor R when t is greater than the filterPeriod (tf),
-    // or it completely resets to 0 when t is greater than the decayPeriod (td).
+    /// @notice sets market fee settings
+    /// @dev determines the cost structure for trading, fees, and providing liquidity within the pool
+    /// @dev these can be dynamically updated post-market creation to adapt to market conditions
     function initialize(
-        uint16 baseFactor, // the base factor for the static fee
-        uint16 filterPeriod, // the filter period for the static fee
-        uint16 decayPeriod, // the decay period for the static fee 
-        uint16 reductionFactor, // the reduction factor for the static fee
-        uint24 variableFeeControl, // the variable fee control for the static fee
-        uint16 protocolShare, // the protocol share for the static fee
-        uint16 maxVolatilityAccumulator, // the max volatility accumulator for the static fee
-        uint16 activeId // the active id of the LB pair
-    ) external /*override*/ onlyFactory {
+        uint16 baseFactor, 
+        uint16 filterPeriod, 
+        uint16 decayPeriod, 
+        uint16 reductionFactor, 
+        uint24 variableFeeControl,
+        uint16 protocolShare, 
+        uint16 maxVolatilityAccumulator, 
+        uint16 activeId // id of active bin
+    ) external onlyFactory {
         bytes32 parameters = _parameters;
-        if (parameters != 0) revert LBPair__AlreadyInitialized();
+        if (parameters != bytes32(uint256(1))) revert LBPair__AlreadyInitialized();
 
-            // set static fee parameters
-            // parameters.setActiveId(activeId).updateIdReference(),
-            // baseFactor,
-            // filterPeriod,
-            // decayPeriod,
-            // reductionFactor,
-            // variableFeeControl,
-            // protocolShare,
-            // maxVolatilityAccumulator
+        _setStaticFeeParameters(
+            parameters,
+            baseFactor,
+            filterPeriod,
+            decayPeriod,
+            reductionFactor,
+            variableFeeControl,
+            protocolShare,
+            maxVolatilityAccumulator
+        );
+
+        // setActiveId() from PairParameterHelper, places binId to target activeId slot
+        _parameters = parameters.setActiveId(activeId);
     }
 
+
+    /// @notice External function to set static fee parameters of the pool
+    /// @dev Can only be called by the factory
+    function setStaticFeeParameters(
+        uint16 baseFactor,
+        uint16 filterPeriod,
+        uint16 decayPeriod,
+        uint16 reductionFactor,
+        uint24 variableFeeControl,
+        uint16 protocolShare,
+        uint24 maxVolatilityAccumulator
+    ) external onlyFactory {
+        _setStaticFeeParameters(
+            _parameters,
+            baseFactor,
+            filterPeriod,
+            decayPeriod,
+            reductionFactor,
+            variableFeeControl,
+            protocolShare,
+            maxVolatilityAccumulator
+        );
+    }
+
+    /// @dev Sets static fee params with necessary checks
+    function _setStaticFeeParameters(
+        bytes32 parameters,
+        uint16 baseFactor,
+        uint16 filterPeriod,
+        uint16 decayPeriod,
+        uint16 reductionFactor,
+        uint24 variableFeeControl,
+        uint16 protocolShare,
+        uint24 maxVolatilityAccumulator
+    ) internal {
+        if (
+            baseFactor == 0 && filterPeriod == 0 && decayPeriod == 0 && reductionFactor == 0 && variableFeeControl == 0
+                && protocolShare == 0 && maxVolatilityAccumulator == 0
+        ) {
+            revert LBPair__InvalidStaticFeeParameters();
+        }
+
+        parameters = parameters.setStaticFeeParameters(
+            baseFactor,
+            filterPeriod,
+            decayPeriod,
+            reductionFactor,
+            variableFeeControl,
+            protocolShare,
+            maxVolatilityAccumulator
+        );
+    }
 }
