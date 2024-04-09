@@ -33,11 +33,10 @@ The amount of ETH needed to buy one BTC  = The change in quantity of ETH in rese
 
 **Bin Liquidity**
 
-Liquidity (L) is the total value of reserves held within a single bin. A bin's liquidity is denominted in the quote asset and represents the combined value of both assets in the bin.
+Liquidity (L) is the total value of reserves held within a single bin. A bin's liquidity is denominted in the quote asset and represents the combined value of both assets in the bin. Each bin operates as its own constant sum market, meaning that the total value of liquidity within the bin remains constant despite changes in the reserve composition. 
 
-Each bin operates as its own constant sum market, meaning that the total value of liquidity within the bin remains constant despite changes in the reserve composition. Price Parameter (𝑃~i~) is a fixed value that represents the exchange rate of the base asset in terms of the quote asset within a particular bin.
+ Price Parameter (𝑃~i~) is a fixed value that represents the exchange rate of the base asset in terms of the quote asset within a particular bin. As the market continuously determines the correct exchange rate for assets, the active trading bin will be whichever bin holds the correct rate.
 
 𝑃~i~ · 𝑥 + 𝑦 = 𝐿
 
- The price parameter defines a linear relationship on a graph where the x-axis represents the reserve of the base asset (X), and the y-axis represents the reserve of the quote asset (Y) and the slope is the price parameter.
-
+ The price parameter defines a linear relationship graphically where the x-axis represents the reserve of the base asset (X), and the y-axis represents the reserve of the quote asset (Y). As the x and y intercepts change, the slope remains constant as its defined by the price parameter. As you move from one bin to another, the price changes step-wise, and the aggregation of these steps forms the market's liquidity curve across a range of prices. 
