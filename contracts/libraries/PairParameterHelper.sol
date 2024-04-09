@@ -26,8 +26,8 @@ import {Encoded} from "./math/Encoded.sol";
  * [232 - 256[: active index (24 bits)
  */
 library PairParameterHelper {
-    using SafeCast for uint256; // functions for safely casting between different numerical types without risking overflow
-    using Encoded for bytes32; // functions for encoding and decoding values within our bytes32 '_parameters' variable
+    using SafeCast for uint256; // this contract does not explicitly use safecast casting functions but its best practice
+    using Encoded for bytes32;  // functions for encoding and decoding values within our bytes32 '_parameters' variable
 
     error PairParametersHelper__InvalidParameter();
 
